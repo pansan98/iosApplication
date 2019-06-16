@@ -5,16 +5,80 @@
  */
 
 import React, { Component } from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View, FlatList} from 'react-native';
 import TodoInput from './src/component/TodoInput';
+import TodoItem from './src/component/TodoItem';
 
 
 export default class App extends Component<{}> {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            list: [],
+        };
+    }
+
+    deleteAction = (index) => () => {
+        const list = [].concat(this.state.list);
+        list.splice(index, 1);
+
+        this.setState({
+            list,
+        });
+    }
+
+    doneAction = (index) => () => {
+        const list = [].concat(this.state.list);
+        list[index].done = !list[index].done;
+
+        list.push({
+            key: Date.now(),
+            text: text,
+            done: false,
+        });
+
+        this.setState({
+            list,
+        });
+    }
+
+    onPush = (text) => {
+        const list = [].concat(this.state.list);
+
+        list.push({
+            key: Date.now(),
+            text: text,
+            done: false,
+        });
+
+        this.setState({
+            list,
+        });
+    }
+
     render() {
+        const {
+            list,
+        } = this.state;
+
         return (
             <View style={styles.container}>
                 <View style={styles.main}>
-                    <TodoInput />
+                    <TodoInput onPress={this.onPush} />
+                    <View style={styles.todoListContainer}>
+                        <FlatList
+                            style={styles.todoList}
+                            data={list}
+                            renderItem={({item, index}) => (
+                                <TodoItem
+                                onDone={this.doneAction(index)}
+                                onDelete={this.deleteAction(index)}
+                                {...item}
+                                />
+                            )}
+                        />
+                    </View>
                 </View>
             </View>
         );
@@ -22,15 +86,23 @@ export default class App extends Component<{}> {
 }
 
 const styles = StyleSheet.create({
-                                 container: {
-                                 flex: 1,
-                                 backgroundColor: '#333',
-                                 paddingTop: 40,
-                                 alignItems: 'center',
-                                 },
-                                 main: {
-                                 flex: 1,
-                                 maxWidth: 400,
-                                 alignItems: 'center',
-                                 }
-                                 });
+    container: {
+        flex: 1,
+        backgroundColor: '#333',
+        paddingTop: 40,
+        alignItems: 'center',
+    },
+    main: {
+        flex: 1,
+        maxWidth: 400,
+        alignItems: 'center',
+    },
+    todoListContainer: {
+        flexDirection: 'row',
+        flex: 1,
+    },
+    todoList: {
+        paddingLeft: 10,
+        paddingRight: 10,
+    }
+});
